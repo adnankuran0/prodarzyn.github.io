@@ -1,0 +1,47 @@
+import pygame,math
+
+
+screen = pygame.display.set_mode((1000,1000))
+clock = pygame.time.Clock()
+
+running = True
+
+
+def function(x):
+    return x**2
+
+values = []
+
+for i in range(int(screen.get_width()/-2),int(screen.get_width()/2)):
+    values.append(function(i))
+
+max_value = max(values)
+
+z = screen.get_height()/max_value
+
+final_values = []
+
+for i in range(len(values)):
+    try:
+        final_values.append(int(values[i]*-z/2)+screen.get_height()/2)
+    except:
+        pass
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    pygame.display.flip()
+    screen.fill("black")
+    for i in range(len(final_values)):
+        pygame.draw.circle(screen,"white",[i,final_values[i]],2)
+        
+
+
+
+    clock.tick(144)
+
+
+pygame.quit()
+    
+
