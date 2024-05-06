@@ -13,6 +13,7 @@
             background-color: #000;
             color: #fff;
             overflow: hidden;
+            cursor: none; 
         }
 
         .background-gif {
@@ -30,20 +31,21 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) rotateY(0deg) rotateX(0deg) scale(1);
             text-align: center;
             z-index: 1;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
             padding: 20px;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             transition: transform 0.3s ease;
-            cursor: pointer;
-            background-color: rgba(255, 255, 255, 0.1); 
+           
+            background-color: rgba(0,0, 0, 0.1); 
+            perspective: 1000px; 
         }
 
         .content:hover {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: translate(-50%, -50%) perspective(1000px) rotateY(10deg) rotateX(10deg) scale(1.9); /* Apply rotation and scale on hover */
         }
 
         h1 {
@@ -70,9 +72,40 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 1);
         }
 
-
         .content, h1, p {
             user-select: none;
+        }
+
+        
+        .custom-cursor {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fff;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 1;
+            transition: transform 0.1s ease, width 0.1s ease, height 0.1s ease, opacity 0.1s ease;
+        }
+
+        
+        .custom-cursor::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            z-index: -1; 
+            transform: scale(0.5);
+            opacity: 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .content:hover .custom-cursor::before {
+            opacity: 1;
+            transform: scale(1);
         }
     </style>
 </head>
@@ -80,18 +113,68 @@
 
     <div class="background-gif" id="background-gif"></div>
     
-    <div class="content" onclick="window.open('https://soundcloud.com/prodarzyn', '_blank');">
+    <div class="content" onclick="window.open('https://soundcloud.com/prodarzyn', '_blank');" id="content">
         <h1>ARZYN</h1>
     </div>
     <div class="soundcloud">
         <iframe width="100%" height="100%" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1809918576&color=%23101010&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
     </div>
 
-    <script>
+    <audio autoplay loop>
+        <source src="background.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 
+    <!-- Custom cursor -->
+    <div class="custom-cursor"></div>
+
+    <script>
         const gifUrl = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHc0Y3R5YWZ5dHcyZDMzbzJpb2NkNnY1c2RnOHJ3OTRxaXMybXNmcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fnglNFjBGiyAFtm6ke/giphy.gif';
 
         document.getElementById('background-gif').style.backgroundImage = `url('${gifUrl}')`;
+
+        
+        const content = document.getElementById('content');
+        const cursor = document.querySelector('.custom-cursor');
+        const initialTransform = `translate(-50%, -50%) perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)`;
+        const hoverTransform = `translate(-50%, -50%) perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.1)`; 
+
+        content.style.transform = initialTransform;
+
+        content.addEventListener('mousemove', function (e) {
+            const rect = content.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const xPercent = ((x / rect.width) - 0.5) * 40;
+            const yPercent = ((y / rect.height) - 0.5) * 40;
+            content.style.transform = `translate(-50%, -50%) perspective(1000px) rotateY(${xPercent}deg) rotateX(${yPercent}deg)`;
+            cursor.style.width = "15px";
+            cursor.style.height = "15px";
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        });
+
+        content.addEventListener('mouseleave', function () {
+            content.style.transform = initialTransform;
+            cursor.style.width = "10px";
+            cursor.style.height = "10px";
+            cursor.style.opacity = "1";
+        });
+
+        content.addEventListener('mouseenter', function () {
+            cursor.style.opacity = "1";
+            cursor.style.width = "30px";
+            cursor.style.height = "30px";
+            content.style.transform = hoverTransform; 
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            cursor.style.left = e.clientX - 10 + 'px'; 
+            cursor.style.top = e.clientY - 10 + 'px'; 
+        });
+
+        
     </script>
 </body>
 </html>
